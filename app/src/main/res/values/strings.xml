@@ -90,4 +90,5 @@
     <string name="refreshToken">eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQVBQX1VTRVIiLCJpc0FnZW50IjpmYWxzZSwiZW1wTm0iOiLsnoTsm5Dsp4QiLCJpc3MiOiJzeXNvZnQiLCJpZCI6MTkzMSwiZXhwIjoxNTkyMDI5OTcwfQ.bvsHzlCINcYwQxNYOWthUl1eW3Jj9U1z6bj5GKSDLKE</string>
     <string name="selectTeam">팀 선택</string>
     <string name="firstDtDstnct">"firstInputDt"</string>
+    <string name="attach_file_ex">첨부파일.pdf</string>
 </resources>

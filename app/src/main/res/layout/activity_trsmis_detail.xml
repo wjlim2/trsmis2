@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="com.example.trsmis2.model.Trsmis" />
+            type="com.example.trsmis2.model.TrsmisFormatModel" />
 
         <variable
             name="trsmisPrblmTitle"
@@ -201,7 +201,7 @@
                             android:layout_marginStart="6dp"
                             android:textColor="@color/color555555"
                             android:textSize="14dp"
-                            android:text="@{model.positTeamNm}"
+                            android:text="@{model.positTmNm}"
                             tools:text="경영지원팀" />
 
                     </LinearLayout>
@@ -331,7 +331,7 @@
                             android:paddingTop="5dp"
                             android:paddingBottom="5dp"
                             android:textColor="@color/colorPrimary"
-                            android:text="@{model.prblmDlngStatNm}"
+                            android:text="@{model.prblmDlngStatNmUpper}"
                             android:textSize="12dp"
                             tools:text="확인" />
                     </LinearLayout>
@@ -345,6 +345,7 @@
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="15dp"
                     android:background="@color/colorf7f7f9"
+                    android:gravity="center"
                     android:orientation="horizontal">
 
                     <TextView
@@ -353,13 +354,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
                         android:paddingStart="10dp"
-                        android:paddingEnd="0dp"
                         android:paddingTop="15dp"
+                        android:paddingEnd="0dp"
                         android:paddingBottom="15dp"
                         android:text="@string/trsmis"
                         android:textColor="@color/color222222"
                         android:textSize="13dp" />
+
                 </LinearLayout>
+
+
 
                 <LinearLayout
                     android:id="@+id/trsmis_detail_3_content_layout"
@@ -375,9 +379,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
-                        android:paddingEnd="0dp"
                         android:paddingTop="15dp"
-                        android:text="@{trsmisPrblmTitle}"
+                        android:paddingEnd="0dp"
+                        android:text="@{model.trsmisPrblmTitleNm}"
                         android:textColor="@color/color333333"
                         android:textSize="13dp"
                         tools:text="[관리자>기타]" />
@@ -386,22 +390,37 @@
                         style="@style/CustomTextViewR"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:lineSpacingExtra="3dp"
                         android:paddingStart="10dp"
-                        android:text="@{trsmisPrblm}"
                         android:paddingTop="25dp"
                         android:paddingEnd="10dp"
                         android:paddingBottom="15dp"
+                        android:text="@{model.prblmText}"
                         android:textColor="@color/color888888"
-                        android:lineSpacingExtra="3dp"
                         android:textSize="13dp"
                         tools:text="지난번 법착수 관련 협정건 로하스 건설로 캡쳐해서 전달해주면 된다고 합니다.이상입니다." />
                 </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/trsmis_attach_file_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/trsmis_detail_3_content_layout"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    tools:listitem="@layout/item_atchmnfl">
+
+
+                </androidx.recyclerview.widget.RecyclerView>
 
                 <LinearLayout
                     android:id="@+id/trsmis_detail_4_title_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/trsmis_detail_3_content_layout"
+                    android:layout_below="@+id/trsmis_attach_file_list"
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="15dp"
                     android:background="@color/colorf7f7f9"
@@ -450,7 +469,7 @@
                         android:layout_height="wrap_content"
                         android:paddingStart="10dp"
                         android:lineSpacingExtra="3dp"
-                        android:text="@{trsmisPend}"
+                        android:text="@{model.dlngResltText}"
                         android:paddingTop="25dp"
                         android:paddingEnd="10dp"
                         android:paddingBottom="15dp"
@@ -467,6 +486,8 @@
                     android:layout_marginStart="15dp"
                     android:layout_marginEnd="15dp"
                     android:background="@color/colorCCCCCC" />
+
+
             </RelativeLayout>
         </androidx.core.widget.NestedScrollView>
     </RelativeLayout>

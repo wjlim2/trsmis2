@@ -166,8 +166,12 @@ public class AppUtil {
         return to;
     }
 
-    public static String changeDateFormat(String dateString) {
+    public static String changeDateBarFormat(String dateString) {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).format(getStringToDate(dateString));
+    }
+
+    public static String changeDateSlashFormat(String dateString) {
+        return new SimpleDateFormat("yyyy / MM / dd", Locale.KOREA).format(getStringToDate(dateString));
     }
 
     public static String jobCdToNm(String jobCd) {

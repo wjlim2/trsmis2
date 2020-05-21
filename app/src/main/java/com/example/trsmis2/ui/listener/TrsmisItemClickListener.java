@@ -1,9 +1,8 @@
 package com.example.trsmis2.ui.listener;
 
-
-import com.example.trsmis2.model.Trsmis;
+import com.example.trsmis2.model.TrsmisFormatModel;
 
 public interface TrsmisItemClickListener {
 
-    void onTrsmisItemClicked(Trsmis model);
+    void onTrsmisItemClicked(TrsmisFormatModel model);
 }

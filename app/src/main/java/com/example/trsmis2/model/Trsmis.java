@@ -72,7 +72,7 @@ public class Trsmis implements Parcelable { //요청사항 모델
     /**
      * 상태코드
      */
-    private String prblmDlngStatCd;
+    private String prblmDlngStatCd; //Problem Dealing State Code
     /**
      * 상태명
      */

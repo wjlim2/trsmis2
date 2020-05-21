@@ -96,17 +96,13 @@ public class RecyclerViewPositionHelper {
         }
 
         final int start = helper.getStartAfterPadding();
-        Log.e(TAG, "start: " + start);
         final int end = helper.getEndAfterPadding();
-        Log.e(TAG, "end: " + end);
         final int next = toIndex > fromIndex ? 1 : -1;
         View partiallyVisible = null;
         for (int i = fromIndex; i != toIndex; i += next) {
             final View child = layoutManager.getChildAt(i);
             final int childStart = helper.getDecoratedStart(child);
-            Log.e(TAG, "childStart: " + childStart);
             final int childEnd = helper.getDecoratedEnd(child);
-            Log.e(TAG, "childEnd: " + childEnd);
             if (childStart < end && childEnd > start) {
                 if (completelyVisible) {
                     if (childStart >= start && childEnd <= end) {

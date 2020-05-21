@@ -1,11 +1,14 @@
 package com.example.trsmis2.ui.viewmodel;
 
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.trsmis2.model.Trsmis;
+import com.example.trsmis2.model.TrsmisFormatModel;
 import com.example.trsmis2.model.TrsmisReqModel;
 import com.example.trsmis2.model.TrsmisResModel;
 import com.example.trsmis2.network.RetrofitClient;
@@ -17,28 +20,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
+import java.util.List;
 
-import io.reactivex.Scheduler;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
 
-import static com.example.trsmis2.util.AppUtil.monthCalculator;
-import static com.example.trsmis2.util.AppUtil.getDateToString;
-import static com.example.trsmis2.util.AppUtil.todayDateString;
+import static com.example.trsmis2.util.AppUtil.*;
 
-public class TrsmisViewModel extends ViewModel{
+public class TrsmisViewModel extends ViewModel {
     private TrsmisReqModel mTrsmisReqModel = new TrsmisReqModel("firstInputDt", "", "30", "1");
-    private MutableLiveData<ArrayList<Trsmis>> mTrsmisList = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<TrsmisFormatModel>> mTrsmisFormat = new MutableLiveData<>();
     private MutableLiveData<Integer> mTrsmisCnt = new MutableLiveData<>();
     private MutableLiveData<Integer> mLoading = new MutableLiveData<>();
     private MutableLiveData<String> mJobCode = new MutableLiveData<>();
@@ -48,59 +44,109 @@ public class TrsmisViewModel extends ViewModel{
     private String jobDstnctCd;
 
     public void onListCall(String date, String jobCd) {
-        Logger.d(jobCd);
         mTrsmisReqModel.setFindStrtDt(monthCalculator(date, -2));
         mTrsmisReqModel.setFindEndDt(date);
         mTrsmisReqModel.setJobDstnctCd(jobCd);
-        if(isPageReload()){
+        if (isPageReload()) {
             mLoading.setValue(View.VISIBLE);
         }
-
-        mService.trsmisCall(mTrsmisReqModel).subscribeOn(Schedulers.io())
+        mService.trsmisCall(mTrsmisReqModel)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<Response<TrsmisResModel>>() {
+                .map(response -> {
+                    if (!response.isSuccessful() || response.body() == null) {
+                        try {
+                            JSONObject jsonObject = null;
+                            if (response.errorBody() != null) {
+                                jsonObject = new JSONObject(response.errorBody().string());
+                            }
+                            if (jsonObject != null) {
+                                if (jsonObject.getString("message").equals("Access Denied")) {
+                                    mError.setValue("LOGIN");
+                                }
+                            }
+                        } catch (JSONException | IOException e) {
+                            mError.setValue("SERVER");
+                        }
+                    }
+                    return response;
+                })
+                .observeOn(Schedulers.io())
+                .map( response -> {
+                    ArrayList<TrsmisFormatModel> trsmisFormatModel = new ArrayList<>();
+                    if (response.isSuccessful() && response.body() != null) {
+                        ArrayList<Trsmis> trsmis = response.body().getTrsmisList();
+                        for (int index = 0; index < trsmis.size(); index++) {
+                            //아이템 포지션
+                            String position = String.valueOf(response.body().getTrsmisCnt() - ((index + (Integer.parseInt(mTrsmisReqModel.getCurrentPage())-1)*30)));
+
+                            // 요청사항 분류
+                            if (trsmis.get(index).getTrsmisLclasNm() == null) trsmis.get(index).setTrsmisLclasNm("미지정");//대분류
+                            if (trsmis.get(index).getTrsmisSclasNm() == null) trsmis.get(index).setTrsmisSclasNm("미지정");//소분류
+                            String trsmisPrblmTitle = "[" + trsmis.get(index).getTrsmisLclasNm() + ">" + trsmis.get(index).getTrsmisSclasNm() + "]";
+
+                            //요청 처리상태
+                            String trsmisPendTitle;
+                            if (trsmis.get(index).getDlngResltText() == null) trsmis.get(index).setDlngResltText(""); //결과
+                            if (trsmis.get(index).getPrblmDlngStatNm() == null || trsmis.get(index).getPrblmDlngStatNm().equals("미확인")) { //진행 및 결과
+                                trsmisPendTitle = "";
+                            } else {
+                                trsmisPendTitle = "[" + trsmis.get(index).getPrblmDlngStatNm() + "]";
+                            }
+
+                            //하단 요청 처리결과 텍스트
+                            String trsmisPend;
+                            if (trsmis.get(index).getDlngResltText().isEmpty()) {
+                                if (trsmis.get(index).getPrblmPendText() != null) {
+                                    trsmisPend = trsmis.get(index).getPrblmPendText();
+                                } else {
+                                    trsmisPend = "";
+                                }
+                            } else {
+                                trsmisPend =trsmis.get(index).getDlngResltText();
+                            }
+
+                            trsmisFormatModel.add(new TrsmisFormatModel(
+                                    position, //아이템 포지션
+                                    trsmis.get(index).getCustDstnctSoNm(), // 요청업체 축약명
+                                    trsmis.get(index).getPositTeamNm(), //요청업체명
+                                    trsmis.get(index).getPrblmDlngStatNm(), //상단 요청처리상태
+                                    trsmisPendTitle, //하단 요청 처리상태
+                                    trsmisPrblmTitle, //요청사항 분류
+                                    trsmis.get(index).getPrblmText(), //요청사항 텍스트
+                                    trsmisPend,
+                                    trsmis.get(index).getCustDstnctCd())); //요청처리결과 텍스트
+
+                            //요청일
+                            trsmisFormatModel.get(index).setFirstInputDt(changeDateSlashFormat(trsmis.get(index).getFirstInputDt()));
+
+                            //요청자
+                            trsmisFormatModel.get(index).setWritrNm(trsmis.get(index).getWritrNm());
+
+                            //처리자명
+                            trsmisFormatModel.get(index).setDlrNm(trsmis.get(index).getDlrNm());
+
+                            //첨부파일
+                            trsmisFormatModel.get(index).setFileList(trsmis.get(index).getFileList());
+                            Logger.d(trsmis.get(index).getFileList());
+                        }
+                    }
+
+
+                    return trsmisFormatModel;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<ArrayList<TrsmisFormatModel>>() {
                     @Override
                     public void onSubscribe(Disposable d) {}
 
                     @Override
-                    public void onSuccess(Response<TrsmisResModel> trsmisResModelResponse) {
-                        //토큰 체크
-                        if (trsmisResModelResponse.headers().get("new_token") != null) {
-                            Hawk.put("auth-token", trsmisResModelResponse.headers().get("new_token"));
-                        }
-
-                        if (trsmisResModelResponse.isSuccessful() && trsmisResModelResponse.body() != null) {
-                            Logger.d(trsmisResModelResponse.body());
-                            ArrayList<Trsmis> resultTrsmisList = trsmisResModelResponse.body().getTrsmisList();
-                            int trsmisCnt = trsmisResModelResponse.body().getTrsmisCnt();
-                            mTrsmisCnt.setValue(trsmisCnt);
-                            mTrsmisList.setValue(resultTrsmisList);
-                        } else {
-                            try {
-                                JSONObject jsonObject = null;
-
-                                if (trsmisResModelResponse.errorBody() != null) {
-                                    jsonObject = new JSONObject(trsmisResModelResponse.errorBody().string());
-
-                                    Logger.d(trsmisResModelResponse.errorBody());
-                                }
-
-                                if (jsonObject != null) {
-                                    if (jsonObject.getString("message").equals("Access Denied")) {
-                                        Logger.d(jsonObject.getString("message"));
-                                        mError.setValue("LOGIN");
-                                    }
-                                }
-                            } catch (JSONException | IOException e) {
-                                Logger.d(e);
-                                mError.setValue("SERVER");
-                            }
-                        }
+                    public void onSuccess(ArrayList<TrsmisFormatModel> trsmisFormatModel) {
+                        mTrsmisFormat.setValue(trsmisFormatModel);
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Logger.d(e);
                         mError.setValue("SERVER");
                     }
                 });
@@ -111,20 +157,6 @@ public class TrsmisViewModel extends ViewModel{
     public boolean isPageReload() {
         return mTrsmisReqModel.getCurrentPage().equals("1");
     }
-
-    public void backBtnClicked() {}
-
-    public void dateClicked() {}
-
-    public void datePrevClicked() {}
-
-    public void dateNextClicked() {}
-
-    public void teamSelectClicked() {}
-
-    public void writeBtnClicked() {}
-
-
 
     public TrsmisReqModel getTrsmisReqModel() {
         return mTrsmisReqModel;
@@ -142,8 +174,8 @@ public class TrsmisViewModel extends ViewModel{
         return mTrsmisCnt;
     }
 
-    public MutableLiveData<ArrayList<Trsmis>> getTrsmis() {
-        return mTrsmisList;
+    public MutableLiveData<ArrayList<TrsmisFormatModel>> getTrsmisFormat() {
+        return mTrsmisFormat;
     }
 
     public MutableLiveData<String> getAction() {
@@ -153,5 +185,6 @@ public class TrsmisViewModel extends ViewModel{
     public MutableLiveData<Integer> getLoading() {
         return mLoading;
     }
+
 
 }

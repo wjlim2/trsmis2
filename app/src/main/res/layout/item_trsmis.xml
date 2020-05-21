@@ -7,15 +7,27 @@
 
         <variable
             name="position"
-            type="Integer" />
+            type="String" />
 
         <variable
             name="model"
-            type="com.example.trsmis2.model.Trsmis" />
+            type="com.example.trsmis2.model.TrsmisFormatModel" />
 
         <variable
             name="modelList"
             type="com.example.trsmis2.model.TrsmisAtchmnfl" />
+
+        <variable
+            name="prblm_title"
+            type="String" />
+
+        <variable
+            name="prblm_text"
+            type="String" />
+
+        <variable
+            name="prblm_dlng_stat"
+            type="String" />
 
         <variable
             name="listener"
@@ -48,7 +60,7 @@
                 android:gravity="start|center_vertical"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="@{@string/str_trsmis_index(position)}"
+                android:text="@{model.trsmisPos}"
                 android:textColor="@color/color333333"
                 tools:text="200" />
 
@@ -94,7 +106,7 @@
                         android:layout_marginStart="6dp"
                         android:gravity="center"
                         android:layout_marginTop="10dp"
-                        android:text="@{model.positTeamNm}"
+                        android:text="@{model.positTmNm}"
                         android:textAlignment="center"
                         android:textColor="@color/color333333"
                         android:textSize="15dp"
@@ -116,7 +128,7 @@
                         android:gravity="center"
                         android:paddingTop="2dp"
                         android:paddingBottom="2dp"
-                        android:text="@{model.prblmDlngStatNm}"
+                        android:text="@{model.prblmDlngStatNmUpper}"
                         android:textColor="@color/colorPrimary"
                         android:textSize="12dp"
                         tools:text="확인" />
@@ -139,6 +151,7 @@
                     android:singleLine="true"
                     android:textColor="@color/color333333"
                     android:textSize="13dp"
+                    android:text="@{model.trsmisPrblmTitleNm}"
                     tools:text="[관리자>문의사항]" />
 
                 <TextView
@@ -151,6 +164,7 @@
                     android:singleLine="true"
                     android:textColor="@color/color888888"
                     android:textSize="13dp"
+                    android:text="@{model.prblmText}"
                     tools:text="안녕하세요~ 항상 고생 많으십니다. 현재..." />
 
                 <View
@@ -174,6 +188,7 @@
                         android:singleLine="true"
                         android:textColor="@color/color333333"
                         android:textSize="13dp"
+                        android:text="@{model.prblmDlngStatNmLower}"
                         tools:text="[완료]" />
 
                     <TextView
@@ -185,6 +200,7 @@
                         android:singleLine="true"
                         android:textColor="@color/color888888"
                         android:textSize="13dp"
+                        android:text="@{model.dlngResltText}"
                         tools:text="처리완료 A값 개찰 결과 반영" />
 
                 </LinearLayout>

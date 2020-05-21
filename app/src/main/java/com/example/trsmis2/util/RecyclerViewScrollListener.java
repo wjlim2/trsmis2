@@ -23,18 +23,12 @@ public abstract class RecyclerViewScrollListener extends RecyclerView.OnScrollLi
 
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-        Log.e(TAG, "onScrolled()");
         totalDy += dy; // 아이템 리스트의 y축값. 최상단에 있을 때 0, 최하단은 아이템 수에 따라 다름
-        Log.e(TAG, "totalDy: " + totalDy);
         super.onScrolled(recyclerView, dx, dy);
         mRecyclerViewHelper = RecyclerViewPositionHelper.createHelper(recyclerView);
         visibleItemCount = recyclerView.getChildCount(); // 현재 뷰에 보이는 아이템의 수
-        Log.e(TAG, "visibleItemCount: " + visibleItemCount);
         totalItemCount = mRecyclerViewHelper.getItemCount(); // 아이템 총량
-        Log.e(TAG, "totalItemCount: " + totalItemCount);
         firstVisibleItem = mRecyclerViewHelper.findFirstVisibleItemPosition(); // 현재 뷰에 보이는 아이템 중 최상단에 있는 아이템의 포지션
-        Log.e(TAG, "firstVisibleItem: " + firstVisibleItem);
-        Log.e(TAG, "scrolledDistance: " + scrolledDistance);
         if (scrolledDistance > HIDE_THRESHOLD) {
             onHide();
             scrolledDistance = 0;

@@ -11,8 +11,10 @@ import com.example.trsmis2.R;
 import com.example.trsmis2.databinding.ItemTeamSelectBinding;
 import com.example.trsmis2.ui.listener.TeamSelectDialogClickListener;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
-import java.util.logging.Logger;
+
 
 public class TeamSelectAdapter extends RecyclerView.Adapter<TeamSelectAdapter.TeamSelectViewHolder> { //TODO TeamSelectAdapter 검토
 
@@ -31,8 +33,9 @@ public class TeamSelectAdapter extends RecyclerView.Adapter<TeamSelectAdapter.Te
         mSelectPos = position;
     }
 
+    @NotNull
     @Override
-    public TeamSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TeamSelectViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
         ItemTeamSelectBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()),
                 R.layout.item_team_select, parent, false);
         return new TeamSelectViewHolder(binding);
@@ -54,22 +57,21 @@ public class TeamSelectAdapter extends RecyclerView.Adapter<TeamSelectAdapter.Te
     }
 
 
-    public class TeamSelectViewHolder extends RecyclerView.ViewHolder {
+    class TeamSelectViewHolder extends RecyclerView.ViewHolder {
 
         private ItemTeamSelectBinding mBinding;
 
-        public TeamSelectViewHolder(ItemTeamSelectBinding binding) {
+        TeamSelectViewHolder(ItemTeamSelectBinding binding) {
             super(binding.getRoot());
             mBinding = binding;
         }
 
-        public void bindView(String jobCdNm, TeamSelectDialogClickListener listener) {
+        void bindView(String jobCdNm, TeamSelectDialogClickListener listener) {
             mBinding.setString(jobCdNm);
             mBinding.teamselectItemLayout.setOnClickListener( v -> {
                 mSelectPos = getAdapterPosition();
                 notifyDataSetChanged();
                 listener.TeamSelectDialogClicked(jobCdNm);
-                Log.e(TeamSelectAdapter.class.getSimpleName(), "jobCdNm = " + jobCdNm);
             });
         }
     }
